@@ -5,7 +5,7 @@ const initialMessage = "";
 const initialEmail = "";
 const initialSteps = 0;
 const initialIndex = 4; // the index the "B" is at
-
+const numCol = 3;
 
 export default function AppFunctional(props) {
   // THE FOLLOWING HELPERS ARE JUST RECOMMENDATIONS.
@@ -17,10 +17,17 @@ export default function AppFunctional(props) {
   const [email, setEmail] = useState(initialEmail);
   const [message, setMessage] = useState(initialMessage);
 
-  function getXY() {
+  function getXY(idx) {
     // It it not necessary to have a state to track the coordinates.
     // It's enough to know what index the "B" is at, to be able to calculate them.
+
+    // take the index and modulus by number of columns and add 1
+    const x = (idx % numCol) + 1;
+    // take the index and divide by number of columns (rounded down) and add 1
+    const y = Math.floor(idx / numCol) + 1;
+    return [x, y];
   }
+  console.log(getXY(2));
 
   function getXYMessage() {
     // It it not necessary to have a state to track the "Coordinates (2, 2)" message for the user.
