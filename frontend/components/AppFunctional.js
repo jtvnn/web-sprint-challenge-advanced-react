@@ -17,7 +17,7 @@ export default function AppFunctional(props) {
   const [email, setEmail] = useState(initialEmail);
   const [message, setMessage] = useState(initialMessage);
 
-  function getXY(idx) {
+  function getXY(idx = index) {
     // It it not necessary to have a state to track the coordinates.
     // It's enough to know what index the "B" is at, to be able to calculate them.
 
@@ -33,10 +33,18 @@ export default function AppFunctional(props) {
     // It it not necessary to have a state to track the "Coordinates (2, 2)" message for the user.
     // You can use the `getXY` helper above to obtain the coordinates, and then `getXYMessage`
     // returns the fully constructed string.
+    const [x, y] = getXY();
+    return `Coordinates (${x}, ${y})`;
   }
+
+  console.log(getXYMessage());
 
   function reset() {
     // Use this helper to reset all states to their initial values.
+    setIndex(initialIndex);
+    setSteps(initialSteps);
+    setMessage(initialMessage);
+    setEmail(initialEmail);
   }
 
   function getNextIndex(direction) {
@@ -52,8 +60,9 @@ export default function AppFunctional(props) {
 
   function onChange(evt) {
     // You will need this to update the value of the input.
+    setEmail(evt.target.value);
   }
-
+  console.log({email});
   function onSubmit(evt) {
     // Use a POST request to send a payload to the server.
   }
@@ -72,7 +81,7 @@ export default function AppFunctional(props) {
         ))}
       </div>
       <div className="info">
-        <h3 id="message"></h3>
+        <h3 id="message">{message}</h3>
       </div>
       <div id="keypad">
         <button id="left">LEFT</button>
@@ -82,8 +91,8 @@ export default function AppFunctional(props) {
         <button id="reset">reset</button>
       </div>
       <form>
-        <input id="email" type="email" placeholder="type email"></input>
-        <input id="submit" type="submit"></input>
+        <input id="email" type="email" placeholder="type email" onChange={onChange} value={email}></input>
+        <input id="submit"  type="submit"></input>
       </form>
     </div>
   );
