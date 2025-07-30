@@ -11,7 +11,7 @@ const numCol = 3;
 export default function AppFunctional(props) {
   // THE FOLLOWING HELPERS ARE JUST RECOMMENDATIONS.
   // You can delete them and build your own logic from scratch.
-  
+
   // set up some state
   const [index, setIndex] = useState(initialIndex);
   const [steps, setSteps] = useState(initialSteps);
@@ -61,18 +61,17 @@ export default function AppFunctional(props) {
     let y = Math.floor(index / numCol);
 
     switch (direction) {
-      case "left": 
-        return x > 0 ? index - 1 : index 
-      case "right": 
-        return x < 2 ? index + 1  : index
-      case "up": 
-        return y > 0 ? index - 3  : index
-      case "down": 
-        return y < 2 ? index + 3 : index
+      case "left":
+        return x > 0 ? index - 1 : index;
+      case "right":
+        return x < 2 ? index + 1 : index;
+      case "up":
+        return y > 0 ? index - 3 : index;
+      case "down":
+        return y < 2 ? index + 3 : index;
       default:
-         return index
+        return index;
     }
-
   }
 
   function move(evt) {
@@ -84,11 +83,25 @@ export default function AppFunctional(props) {
     // You will need this to update the value of the input.
     setEmail(evt.target.value);
   }
-  console.log({email});
-  function onSubmit(evt) {
-    // Use a POST request to send a payload to the server.
-  }
 
+  async function onSubmit(evt) {
+    // Use a POST request to send a payload to the server.
+    evt.preventDefault();
+    setMessage("");
+    const [x, y] = getXY();
+    try {
+      const resp = await axios.post("http://localhost:9000/api/result", {
+        x,
+        y,
+        steps,
+        email,
+      });
+      setMessage(resp.data.message);
+      setEmail("");
+    } catch (error) {
+      setMessage("Error submitting form");
+    }
+  } 
   return (
     <div id="wrapper" className={props.className}>
       <div className="info">
@@ -110,11 +123,19 @@ export default function AppFunctional(props) {
         <button id="up">UP</button>
         <button id="right">RIGHT</button>
         <button id="down">DOWN</button>
-        <button id="reset">reset</button>
+        <button id="reset" onClick={reset}>
+          reset
+        </button>
       </div>
-      <form>
-        <input id="email" type="email" placeholder="type email" onChange={onChange} value={email}></input>
-        <input id="submit"  type="submit"></input>
+      <form onSubmit={onSubmit}>
+        <input
+          id="email"
+          type="email"
+          placeholder="type email"
+          onChange={onChange}
+          value={email}
+        ></input>
+        <input id="submit" type="submit" /> 
       </form>
     </div>
   );
