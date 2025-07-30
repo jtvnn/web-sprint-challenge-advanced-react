@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import axios from "axios";
 
 // Suggested initial states
 const initialMessage = "";
@@ -21,7 +22,7 @@ export default function AppFunctional(props) {
     // It it not necessary to have a state to track the coordinates.
     // It's enough to know what index the "B" is at, to be able to calculate them.
 
-    // take the index and modulus by number of columns and add 1
+    // take the index and modulo by number of columns and add 1
     const x = (idx % numCol) + 1;
     // take the index and divide by number of columns (rounded down) and add 1
     const y = Math.floor(idx / numCol) + 1;
@@ -51,6 +52,27 @@ export default function AppFunctional(props) {
     // This helper takes a direction ("left", "up", etc) and calculates what the next index
     // of the "B" would be. If the move is impossible because we are at the edge of the grid,
     // this helper should return the current index unchanged.
+    // if direction is "left" and x > 0, return index - 1
+    // if direction is "right" and x < 2, return index + 1
+    // if direction is "up" and y > 0, return index - 3
+    // if direction is "down" and y < 2, return index + 3
+    // else return index
+    let x = index % numCol;
+    let y = Math.floor(index / numCol);
+
+    switch (direction) {
+      case "left": 
+        return x > 0 ? index - 1 : index 
+      case "right": 
+        return x < 2 ? index + 1  : index
+      case "up": 
+        return y > 0 ? index - 3  : index
+      case "down": 
+        return y < 2 ? index + 3 : index
+      default:
+         return index
+    }
+
   }
 
   function move(evt) {
