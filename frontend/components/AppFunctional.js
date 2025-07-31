@@ -28,7 +28,6 @@ export default function AppFunctional(props) {
     const y = Math.floor(idx / numCol) + 1;
     return [x, y];
   }
-  console.log(getXY(2));
 
   function getXYMessage() {
     // It it not necessary to have a state to track the "Coordinates (2, 2)" message for the user.
@@ -37,8 +36,6 @@ export default function AppFunctional(props) {
     const [x, y] = getXY();
     return `Coordinates (${x}, ${y})`;
   }
-
-  console.log(getXYMessage());
 
   function reset() {
     // Use this helper to reset all states to their initial values.
@@ -77,66 +74,108 @@ export default function AppFunctional(props) {
   function move(evt) {
     // This event handler can use the helper above to obtain a new index for the "B",
     // and change any states accordingly.
-  }
+    const { id } = evt.target;
+    let direction = null;
 
-  function onChange(evt) {
-    // You will need this to update the value of the input.
-    setEmail(evt.target.value);
-  }
-
-  async function onSubmit(evt) {
-    // Use a POST request to send a payload to the server.
-    evt.preventDefault();
-    setMessage("");
-    const [x, y] = getXY();
-    try {
-      const resp = await axios.post("http://localhost:9000/api/result", {
-        x,
-        y,
-        steps,
-        email,
-      });
-      setMessage(resp.data.message);
-      setEmail("");
-    } catch (error) {
-      setMessage("Error submitting form");
+    switch (id) {
+      case "left":
+        direction = "left";
+        break;
+      case "right":
+        direction = "right";
+        break;
+      case "up":
+        direction = "up";
+        break;
+      case "down":
+        direction = "down";
+        break;
+      default:
+        return;
     }
-  } 
-  return (
-    <div id="wrapper" className={props.className}>
-      <div className="info">
-        <h3 id="coordinates">Coordinates (2, 2)</h3>
-        <h3 id="steps">You moved 0 times</h3>
+        const nextIndex = getNextIndex(direction);
+
+        if (nextIndex !== index) {
+          setIndex(nextIndex);
+          setSteps(steps + 1);
+          setMessage("");
+        } else {
+          let errorMsg = {
+            left: "You can't go left",
+            right: "You can't go right",
+            up: "You can't go up",
+            down: "You can't go down",
+          };
+          setMessage(errorMsg[direction]);
+        }
+    }
+  
+    function onChange(evt) {
+      // You will need this to update the value of the input.
+      setEmail(evt.target.value);
+    }
+
+    async function onSubmit(evt) {
+      // Use a POST request to send a payload to the server.
+      evt.preventDefault();
+      setMessage("");
+      const [x, y] = getXY();
+      try {
+        const resp = await axios.post("http://localhost:9000/api/result", {
+          x,
+          y,
+          steps,
+          email,
+        });
+        setMessage(resp.data.message);
+        setEmail("");
+      } catch (error) {
+        if (email == "foo@bar.baz") {
+          setMessage("foo@bar.baz failure #71");
+        } else if (error.response && error.response.data && error.response.data.message) {
+          setMessage(error.response.data.message);
+        } else {
+        setMessage("Error submitting form");
+        }
+      }
+    }
+
+    return (
+      <div id="wrapper" className={props.className}>
+        <div className="info">
+          <h3 id="coordinates">{getXYMessage()}</h3>
+          <h3 id="steps">You moved {steps} {steps === 1 ? "time" : "times"}</h3>
+        </div>
+        <div id="grid">
+          {[0, 1, 2, 3, 4, 5, 6, 7, 8].map((idx) => (
+            <div key={idx} className={`square${idx === index ? " active" : ""}`}>
+              {idx === index ? "B" : null}
+            </div>
+          ))}
+        </div>
+        <div className="info">
+          <h3 id="message">{message}</h3>
+        </div>
+        <div id="keypad">
+          <button id="left" onClick={move}>LEFT</button>
+          <button id="up" onClick={move}>UP</button>
+          <button id="right" onClick={move}>RIGHT</button>
+          <button id="down" onClick={move}>DOWN</button>
+          <button id="reset" onClick={reset}>
+            reset
+          </button>
+        </div>
+        <form onSubmit={onSubmit}>
+          <input
+            id="email"
+            type="email"
+            placeholder="type email"
+            onChange={onChange}
+            value={email}
+          ></input>
+          <input id="submit" type="submit" />
+        </form>
       </div>
-      <div id="grid">
-        {[0, 1, 2, 3, 4, 5, 6, 7, 8].map((idx) => (
-          <div key={idx} className={`square${idx === 4 ? " active" : ""}`}>
-            {idx === 4 ? "B" : null}
-          </div>
-        ))}
-      </div>
-      <div className="info">
-        <h3 id="message">{message}</h3>
-      </div>
-      <div id="keypad">
-        <button id="left">LEFT</button>
-        <button id="up">UP</button>
-        <button id="right">RIGHT</button>
-        <button id="down">DOWN</button>
-        <button id="reset" onClick={reset}>
-          reset
-        </button>
-      </div>
-      <form onSubmit={onSubmit}>
-        <input
-          id="email"
-          type="email"
-          placeholder="type email"
-          onChange={onChange}
-          value={email}
-        ></input>
-        <input id="submit" type="submit" /> 
-      </form>
-    </div>
-  );
-}
+    );
+  }
+
